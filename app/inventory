@@ -1,0 +1,2 @@
+[web]
+20.127.130.91 port=3000 ansible_python_interpreter=/usr/bin/python3

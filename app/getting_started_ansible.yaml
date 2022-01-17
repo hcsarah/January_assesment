@@ -1,0 +1,52 @@
+---
+ - hosts: web
+   tasks:
+   - name: Clone a github repository
+     git:
+       repo: https://github.com/hcsarah/January_assesment
+       dest: /opt/getting_started/
+       clone: yes
+       update: yes
+   - name: Docker prerequisities
+     yum:
+       name: "{{ item }}"
+       state: latest
+     with_items:
+     - yum-utils
+     - device-mapper-persistent-data
+     - lvm2
+   - name: "Configuring docker repo"
+     get_url:
+       url: https://download.docker.com/linux/centos/docker-ce.repo
+       dest: /etc/yum.repos.d/docker-ce.repo
+       mode: 0644
+
+   - name: "Installing Docker"
+     yum:
+       name: docker-ce
+       state: present
+   - name: " Startin/Enabling Docker service"
+     service:
+       name: docker
+       state: started
+       enabled: yes
+   - name: Download and install Docker Compose
+     get_url:
+       url: https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-linux-x86_64
+       dest: /usr/local/bin/docker-compose
+       mode: 0755
+
+
+   - name: Docker Compose module
+     docker_compose:
+        project_name: docker_module_1
+        definition:
+          version: "3.7"
+          services:
+            web:
+              build:
+                context: /opt/getting_started/app
+                dockerfile: /opt/getting_started/app/Dockerfile
+              image: geting_started:latest
+              ports:
+                - "{{ port }}:3000"
